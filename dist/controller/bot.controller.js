@@ -5,6 +5,7 @@ const db_schema_1 = require("../models/db.schema");
 class BotController {
     async addBot(ctx, message) {
         try {
+            // Tugmalarni yaratish
             const userId = ctx.from.id;
             let daxod = 0;
             if (!message) {
@@ -23,8 +24,8 @@ class BotController {
             if (mess.includes("min")) {
                 daxod += Number(mess[3]) * 1000;
             }
-            ctx.reply(`Sizning daxodingiz: ${daxod}`);
             await db_schema_1.User.findOneAndUpdate({ userId }, { daxod }, { new: true });
+            ctx.reply(`Sizning daxodingiz: ${daxod}`);
         }
         catch (error) {
             ctx.reply(`Add daxod error: 500 `);
@@ -78,6 +79,7 @@ class BotController {
             if (minIndex !== -1) {
                 ras += Number(parts[minIndex - 1]) * 1000;
             }
+            console.log(parts[minIndex - 1], ras);
             // 4. Limitni tekshirish
             if (user.daxod < ras) {
                 return ctx.reply(`Rasxodingiz me’yordan oshdi.\nSizning daxodingiz: ${user.daxod}`);

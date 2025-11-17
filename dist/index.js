@@ -26,6 +26,12 @@ bot.use(user_middlware_1.checkUser);
     await (0, db_model_1.connectDb)();
     await (0, cron_tasks_1.DailySalaryNotif)(bot);
     await (0, cron_tasks_1.MonthNotif)(bot);
+    await bot.api.setMyCommands([
+        { command: "day", description: "Kunlik rasxod" },
+        { command: "month", description: "Oylik rasxod" },
+        { command: "year", description: "Yillik rasxod" },
+        { command: "help", description: "Bot yuriqnomasi" },
+    ]);
     bot.start();
     console.log("Bot startting on port", PORT);
 })();
