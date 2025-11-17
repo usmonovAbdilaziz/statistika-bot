@@ -25,12 +25,19 @@ bot.hears(/^[0-9]{1,2}$/, async (ctx: any) => {
     }
   );
 });
+
 bot.use(checkUser);
 (async () => {
     await botRoutes(bot);
     await connectDb();
     await DailySalaryNotif(bot);
     await MonthNotif(bot);
+    await bot.api.setMyCommands([
+      { command: "day", description: "Kunlik rasxod" },
+      { command: "month", description: "Oylik rasxod" },
+      { command: "year", description: "Yillik rasxod" },
+      { command: "help", description: "Bot yuriqnomasi"},
+    ]);
   bot.start();
   console.log("Bot startting on port", PORT);
 })();

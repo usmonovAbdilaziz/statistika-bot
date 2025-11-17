@@ -33,11 +33,11 @@ const botRoutes = async (bot) => {
         if (mess.length === 1) {
             const userId = ctx.from.id;
             const user = await db_schema_1.User.findOne({ userId });
-            ctx.reply('Bugungi rasxodlar !!!');
             if (!user || user.rasxod.length === 0) {
                 ctx.reply(`Siz hali rasxod qilmadingiz.\nDaxod: ${user?.daxod}`);
                 return;
             }
+            ctx.reply('Bugungi rasxodlar !!!');
             const todayStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
             const todayRasxod = user.rasxod.filter((item) => {
                 const itemDay = new Date(item.createdAt).toISOString().split("T")[0];

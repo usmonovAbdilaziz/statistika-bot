@@ -1,11 +1,25 @@
-import { User } from "../models/db.schema";
+import { IRasxod, User } from "../models/db.schema";
 import { BotController } from "../controller/bot.controller";
 const controller = new BotController();
 export const botRoutes = async (bot: any) => {
-  bot.command("start", (ctx: any) => {
-    ctx.reply(
-      "Salom xush kelibsiz xarajatlaringizni xisoblash uchun iltimos Daxod ni kiriting,\n Misol: [/daxod 3,mln, yoki /daxod 3,ming] "
-    );
+  bot.command("start", async (ctx: any) => {
+    const userId = ctx.from.id;
+    const user = await User.findOne({ userId });
+    if (user?.daxod === 0) {
+      ctx.reply(
+        "Salom xush kelibsiz xarajatlaringizni xisoblash uchun iltimos Daxod ni kiriting,\n Misol: /daxod 3 mln, yoki /daxod 300 ming "
+      );
+      return
+    }
+    if(user){
+        ctx.reply(
+          `Qaytganingizdan xursandmiz, \nSizning daxodingiz: ${
+            user.daxod
+          } edi uzgartirmaysizmi, \nSungi yangilanish: ${new Date(
+            user.createdAt
+          ).toLocaleString()} `
+        );
+    }
   });
   bot.command("help", (ctx: any) => {
     ctx.reply(
@@ -28,7 +42,6 @@ export const botRoutes = async (bot: any) => {
       return;
     }
   });
-  
 
   bot.command("rasxod", async (ctx: any) => {
     const mess = ctx.message.text.toLowerCase().split(" ");
@@ -37,7 +50,7 @@ export const botRoutes = async (bot: any) => {
     if (mess.length === 1) {
       const userId = ctx.from.id;
       const user = await User.findOne({ userId });
-        ctx.reply('Bugungi rasxodlar !!!')
+      ctx.reply("Bugungi rasxodlar !!!");
       if (!user || user.rasxod.length === 0) {
         ctx.reply(`Siz hali rasxod qilmadingiz.\nDaxod: ${user?.daxod}`);
         return;
@@ -66,6 +79,78 @@ export const botRoutes = async (bot: any) => {
     if (mess[0] === "/rasxod") {
       await controller.addRasxod(ctx, message);
       return;
+    }
+  });
+  bot.command(["day", "month", "year"], async (ctx: any) => {
+    try {
+      const userId = ctx.from.id;
+      const user = await User.findOne({ userId });
+
+      if (!user || !user.rasxod || user.rasxod.length === 0) {
+        ctx.reply(`Siz hali rasxod qilmagansiz.\nDaxod: ${user?.daxod || 0}`);
+        return;
+      }
+
+      // Qaysi komandani chaqirganini aniqlash
+      const command = ctx.message.text.replace("/", "").toLowerCase();
+
+      let filteredExpenses: IRasxod[] = [];
+
+      const now = new Date();
+
+      if (command === "day") {
+        filteredExpenses = user.rasxod.filter((r: any) => {
+          console.log(user.rasxod.map((r) => r.createdAt));
+
+          const d = new Date(r.createdAt);
+          return (
+            d.getDate() === now.getDate() &&
+            d.getMonth() === now.getMonth() &&
+            d.getFullYear() === now.getFullYear()
+          );
+        });
+      } else if (command === "month") {
+        filteredExpenses = user.rasxod.filter((r: any) => {
+          const d = new Date(r.createdAt);
+          return (
+            d.getMonth() === now.getMonth() &&
+            d.getFullYear() === now.getFullYear()
+          );
+        });
+      } else if (command === "year") {
+        filteredExpenses = user.rasxod.filter((r: any) => {
+          const d = new Date(r.createdAt);
+          return d.getFullYear() === now.getFullYear();
+        });
+      }
+
+      if (filteredExpenses.length === 0) {
+        ctx.reply(`Siz bu davrda hech qanday rasxod qilmagansiz.`);
+        return;
+      }
+
+      // Rasxodlarni summalash va xabar tayyorlash
+      const total = filteredExpenses.reduce(
+        (acc: number, r: any) => acc + r.price,
+        0
+      );
+      let message = `Sizning ${
+        command === "day" ? "kunlik" : command === "month" ? "oylik" : "yillik"
+      } rasxodingiz:\n`;
+      filteredExpenses.forEach((r: any, i: number) => {
+        const dateObj = new Date(r.createdAt);
+        // Sana (YYYY-MM-DD formatida)
+        const date = dateObj.toISOString().split("T")[0];
+        // Vaqt (HH:MM:SS formatida)
+        const time = dateObj.toTimeString().split(" ")[0];
+        message += `${i + 1}. ${date}:${time}: ${r.price}\n`;
+      });
+      message += `Jami: ${total}`;
+
+      ctx.reply(message);
+    } catch (error) {
+      console.error(error);
+      ctx.reply("Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.");
     }
   });
 };

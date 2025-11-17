@@ -13,7 +13,7 @@ interface IUser extends Document {
   updatedAt: Date;
 }
 //rasxod uchun
-interface IRasxod {
+export interface IRasxod {
   price: number;
   createdAt: Date;
 }

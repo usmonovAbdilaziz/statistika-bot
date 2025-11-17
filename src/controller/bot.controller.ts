@@ -1,9 +1,12 @@
-import { Context } from "grammy";
+import { Context, Keyboard } from "grammy";
 import { User } from "../models/db.schema";
+
 
 export class BotController {
   async addBot(ctx: Context, message: string) {
     try {
+      // Tugmalarni yaratish
+
       const userId = ctx.from!.id;
       let daxod = 0;
       if (!message) {
@@ -24,8 +27,8 @@ export class BotController {
       if (mess.includes("min")) {
         daxod += Number(mess[3]) * 1000;
       }
-      ctx.reply(`Sizning daxodingiz: ${daxod}`);
       await User.findOneAndUpdate({ userId }, { daxod }, { new: true });
+      ctx.reply(`Sizning daxodingiz: ${daxod}`);
     } catch (error) {
       ctx.reply(`Add daxod error: 500 `);
       console.log("Daxod add error: ", error);
@@ -87,8 +90,8 @@ export class BotController {
       if (minIndex !== -1) {
         ras += Number(parts[minIndex - 1]) * 1000;
       }
-      console.log(parts[minIndex-1],ras);
-      
+      console.log(parts[minIndex - 1], ras);
+
       // 4. Limitni tekshirish
       if (user.daxod < ras) {
         return ctx.reply(
@@ -97,7 +100,7 @@ export class BotController {
       }
 
       // 5. Balance hisoblash
-      const currentBalance = user.balance===0? user.daxod:user.balance;    
+      const currentBalance = user.balance === 0 ? user.daxod : user.balance;
       if (currentBalance < ras) {
         return ctx.reply(
           `Sizning rasxodingiz limitdan oshdi.\nQoldiq summa: ${currentBalance}`
@@ -121,9 +124,9 @@ export class BotController {
       );
 
       ctx.reply(
-        `Rasxod: ${ras},    \nQolgan summa: ${newUser?.balance}\nYangilangan vaqti: ${new Date(
-          newUser!.updatedAt
-        ).toLocaleString()}`
+        `Rasxod: ${ras},    \nQolgan summa: ${
+          newUser?.balance
+        }\nYangilangan vaqti: ${new Date(newUser!.updatedAt).toLocaleString()}`
       );
     } catch (error) {
       console.log(error);

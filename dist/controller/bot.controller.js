@@ -78,7 +78,6 @@ class BotController {
             if (minIndex !== -1) {
                 ras += Number(parts[minIndex - 1]) * 1000;
             }
-            console.log(parts[minIndex - 1], ras);
             // 4. Limitni tekshirish
             if (user.daxod < ras) {
                 return ctx.reply(`Rasxodingiz me’yordan oshdi.\nSizning daxodingiz: ${user.daxod}`);
