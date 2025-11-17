@@ -6,6 +6,7 @@ const db_model_1 = require("./models/db.model");
 const user_middlware_1 = require("./guard/user.middlware");
 const db_schema_1 = require("./models/db.schema");
 const dotenv_1 = require("dotenv");
+const cron_tasks_1 = require("./cron-tasks/cron.tasks");
 (0, dotenv_1.config)();
 const PORT = Number(process.env.PORT);
 const bot = new grammy_1.Bot(String(process.env.BOT_TOKEN));
@@ -23,6 +24,8 @@ bot.use(user_middlware_1.checkUser);
 (async () => {
     await (0, bot_routes_1.botRoutes)(bot);
     await (0, db_model_1.connectDb)();
+    await (0, cron_tasks_1.DailySalaryNotif)(bot);
+    await (0, cron_tasks_1.MonthNotif)(bot);
     bot.start();
     console.log("Bot startting on port", PORT);
 })();

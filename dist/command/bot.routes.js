@@ -13,9 +13,7 @@ const botRoutes = async (bot) => {
         \n/daxod yangi daxod kiritasiz Misol: /daxod 4 mln 500 min, yoki 4 mln,
         \nDaxodni uzgartirish /daxod (oldingi daxod) change (yangi daxod)
         \n/rasxod kiritish, Misol: /rasxod 2 mln, yoki 200 min
-        \nBarcha rasxodlarni kurish: /rasxod`, {
-            parse_mode: "MarkdownV2",
-        });
+        \nBarcha rasxodlarni kurish: /rasxod`);
     });
     bot.command("daxod", async (ctx) => {
         const mess = ctx.message.text.toLowerCase().split(" ");
@@ -33,27 +31,24 @@ const botRoutes = async (bot) => {
         const mess = ctx.message.text.toLowerCase().split(" ");
         const message = mess;
         if (mess.length === 1) {
-            let days = [];
             const userId = ctx.from.id;
             const user = await db_schema_1.User.findOne({ userId });
+            ctx.reply('Bugungi rasxodlar !!!');
             if (!user || user.rasxod.length === 0) {
                 ctx.reply(`Siz hali rasxod qilmadingiz.\nDaxod: ${user?.daxod}`);
                 return;
             }
-            // 1. Har bir rasxodni kun bo‘yicha ajratamiz
-            user.rasxod.forEach((item) => {
-                const date = new Date(item.createdAt);
-                // Sana faqat YYYY-MM-DD formatida
-                const day = date.toISOString().split("T")[0];
-                days.push({
-                    day,
-                    price: item.price,
-                    createdAt: item.createdAt,
-                });
+            const todayStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+            const todayRasxod = user.rasxod.filter((item) => {
+                const itemDay = new Date(item.createdAt).toISOString().split("T")[0];
+                return itemDay === todayStr;
             });
-            // 2. Har bir rasxodni alohida jo‘natamiz
-            for (const d of days) {
-                await ctx.reply(`📅 Sana: ${d.day}\n` +
+            if (todayRasxod.length === 0) {
+                ctx.reply("Bugun rasxod qilmagansiz.");
+                return;
+            }
+            for (const d of todayRasxod) {
+                await ctx.reply(`📅 Sana: ${new Date(d.createdAt).toISOString().split("T")[0]}\n` +
                     `💸 Rasxod: ${d.price} so‘m\n` +
                     `⏱ Vaqti: ${new Date(d.createdAt).toLocaleString()}`);
             }

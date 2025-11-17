@@ -3,8 +3,10 @@ import { botRoutes } from "./command/bot.routes";
 import { connectDb } from "./models/db.model";
 import { checkUser } from "./guard/user.middlware";
 import { User } from "./models/db.schema";
-import {config} from 'dotenv'
-config()
+
+import { config } from "dotenv";
+import { DailySalaryNotif, MonthNotif } from "./cron-tasks/cron.tasks";
+config();
 const PORT = Number(process.env.PORT);
 const bot = new Bot(String(process.env.BOT_TOKEN));
 bot.hears(/^[0-9]{1,2}$/, async (ctx: any) => {
@@ -25,8 +27,10 @@ bot.hears(/^[0-9]{1,2}$/, async (ctx: any) => {
 });
 bot.use(checkUser);
 (async () => {
-  await botRoutes(bot);
-  await connectDb();
+    await botRoutes(bot);
+    await connectDb();
+    await DailySalaryNotif(bot);
+    await MonthNotif(bot);
   bot.start();
   console.log("Bot startting on port", PORT);
 })();
