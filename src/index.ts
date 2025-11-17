@@ -3,6 +3,8 @@ import { botRoutes } from "./command/bot.routes";
 import { connectDb } from "./models/db.model";
 import { checkUser } from "./guard/user.middlware";
 import { User } from "./models/db.schema";
+import {config} from 'dotenv'
+config()
 const PORT = Number(process.env.PORT);
 const bot = new Bot(String(process.env.BOT_TOKEN));
 bot.hears(/^[0-9]{1,2}$/, async (ctx: any) => {
