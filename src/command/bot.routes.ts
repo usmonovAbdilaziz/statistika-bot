@@ -23,11 +23,7 @@ export const botRoutes = async (bot: any) => {
   });
   bot.command("help", (ctx: any) => {
     ctx.reply(
-      `/start botni ishga tushuradi,
-        \n/daxod yangi daxod kiritasiz Misol: /daxod 4 mln 500 min, yoki 4 mln,
-        \nDaxodni uzgartirish /daxod (oldingi daxod) change (yangi daxod)
-        \n/rasxod kiritish, Misol: /rasxod 2 mln, yoki 200 min
-        \nBarcha rasxodlarni kurish: /rasxod`
+      `/start botni ishga tushuradi,\n/daxod yangi daxod kiritasiz Misol: /daxod 4 mln 500 min, yoki 4 mln,\nDaxodni uzgartirish /daxod (oldingi daxod,balance emas) change (yangi daxod)\n/add_expense kiritish, Misol: /add_expense 2 mln, yoki 200 min\nBarcha rasxodlarni kurish: /add_expense`
     );
   });
   bot.command("daxod", async (ctx: any) => {
@@ -43,7 +39,7 @@ export const botRoutes = async (bot: any) => {
     }
   });
 
-  bot.command("rasxod", async (ctx: any) => {
+  bot.command("add_expense", async (ctx: any) => {
     const mess = ctx.message.text.toLowerCase().split(" ");
     const message = mess;
 
@@ -57,7 +53,7 @@ export const botRoutes = async (bot: any) => {
       }
 
       const todayStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-      const todayRasxod = user.rasxod.filter((item) => {
+      const todayRasxod = user.rasxod.filter((item:any) => {
         const itemDay = new Date(item.createdAt).toISOString().split("T")[0];
         return itemDay === todayStr;
       });
@@ -76,11 +72,21 @@ export const botRoutes = async (bot: any) => {
       }
       return;
     }
-    if (mess[0] === "/rasxod") {
+    if (mess[0] === "/add_expense") {
       await controller.addRasxod(ctx, message);
       return;
     }
   });
+  bot.command('balance',async(ctx:any)=>{
+    try {
+      const userId = ctx.from.id
+      const user = await User.findOne({userId})
+      ctx.reply(`Sizning balansingizdagi mablag': ${user?.balance?user?.balance:user?.daxod}`)
+    } catch (error) {
+      console.log("balance error",error);
+      
+    }
+  })
   bot.command(["day", "month", "year"], async (ctx: any) => {
     try {
       const userId = ctx.from.id;
@@ -100,7 +106,7 @@ export const botRoutes = async (bot: any) => {
 
       if (command === "day") {
         filteredExpenses = user.rasxod.filter((r: any) => {
-          console.log(user.rasxod.map((r) => r.createdAt));
+          console.log(user.rasxod.map((r:any) => r.createdAt));
 
           const d = new Date(r.createdAt);
           return (

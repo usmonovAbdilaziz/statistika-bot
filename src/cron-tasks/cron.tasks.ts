@@ -13,7 +13,7 @@ export const DailySalaryNotif = async (bot: any) => {
           if (user.salaryDay === today) {
             try {
               let total: number = 0;
-              user.rasxod.forEach((item) => {
+              user.rasxod.forEach((item:any) => {
                 total += Number(item.price);
               });
               await bot.api.sendMessage(

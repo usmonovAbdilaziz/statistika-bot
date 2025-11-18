@@ -36,7 +36,8 @@ bot.use(checkUser);
       { command: "day", description: "Kunlik rasxod" },
       { command: "month", description: "Oylik rasxod" },
       { command: "year", description: "Yillik rasxod" },
-      { command: "help", description: "Bot yuriqnomasi"},
+      { command: "help", description: "Bot yuriqnomasi" },
+      { command: "balance", description: "Balansingiz" },
     ]);
   bot.start();
   console.log("Bot startting on port", PORT);
